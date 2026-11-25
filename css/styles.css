@@ -104,24 +104,20 @@ tbody tr{cursor:pointer}tbody tr:hover{background:#FAFBFC}
 .lcard{padding:32px}
 .lname{text-align:left}.lname .wm{font-weight:700;font-size:17px}.lname .co{font-size:13px;color:var(--mute)}
 .lfoot{margin-top:auto;padding-top:40px;font-size:12px;color:var(--mute);text-align:center}
-.lart,.lcorner,.lsub{display:none}
+.lcorner,.lsub{display:none}
 @media (min-width:861px){
  .login{position:relative;overflow:hidden;background:#0B2733;border-top:0;padding:56px 24px 20px;justify-content:center}
- .lart{display:block;position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
- .lart text{fill:#9DBDC8;font-size:14px;font-family:'Be Vietnam Pro',sans-serif;font-weight:500}
  .lcorner{display:flex;align-items:center;gap:12px;position:absolute;top:28px;left:36px;color:#fff;z-index:1}
  .lcorner b{width:44px;height:44px;border-radius:11px;background:#fff;color:var(--pri);display:flex;align-items:center;justify-content:center;font-size:16px}
  .lcorner .cw{font-weight:700;font-size:18px;line-height:1.2}
  .lcorner .cc{font-size:13px;color:#9DBDC8}
  .lwrap{position:relative;z-index:1;max-width:460px;gap:20px}
  .lhead .logo,.lhead .eyebrow{display:none}
- .lhead{background:radial-gradient(closest-side,#0B2733 62%,rgba(11,39,51,0));padding:12px 56px;margin:0 -56px}
  .lhead h1{color:#fff;font-size:30px;line-height:1.25;letter-spacing:-.015em}
  .lsub{display:block;margin:12px 0 0;color:#9DBDC8;font-size:15px;text-wrap:balance}
  .lcard{padding:30px 34px;gap:14px;border:0;border-radius:14px;box-shadow:0 30px 80px rgba(2,14,20,.55)}
  .lfoot{position:relative;z-index:1;color:#7FA3B0;margin-top:0;padding-top:20px}
 }
-@media (min-width:861px) and (max-width:1240px){.lart .lbl{display:none}}
 .devnote{display:flex;gap:10px;padding:12px 14px;border-radius:10px;background:var(--pri-l);color:#08445A;font-size:13px}
 .role{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .role label{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--inp);border-radius:8px;padding:10px 12px;cursor:pointer;font-size:13px}
