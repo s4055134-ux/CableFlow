@@ -17,12 +17,18 @@ js/state.js           Dữ liệu mẫu + lưu localStorage
 js/utils.js           Hàm tiện ích, chip, toast, icon
 js/recommend.js       Xếp hạng phương án cáp, kiểm tra tồn kho
 js/message.js         Soạn tin nhắn hỏi lại khách, tô sáng đoạn trích
-js/views/*.js         Từng màn hình: shell, login, list, new, workspace, admin
+js/views/*.js         Từng màn hình: shell, login, list, new, workspace, history, admin
 js/app.js             Router (#/...) và xử lý sự kiện – nạp sau cùng
 ```
 
 ## Luồng màn hình
-`#/login` → `#/enquiries` → `#/new` → `#/enquiry/<mã>` (4 bước) → `#/admin`
+`#/login` → `#/enquiries` → `#/new` → `#/enquiry/<mã>` (4 bước, gồm báo giá) → `#/history` → `#/admin`
+
+## Ghi chú bản dev
+- Nhận file PDF/ảnh nhưng chưa đọc nội dung (cần backend + AI API).
+- File tồn kho Excel/CSV đọc ngay trên trình duyệt bằng SheetJS (tải từ CDN khi cần).
+- Báo giá: mẫu tạm, chỉ hàng có sẵn, giá vốn do nhân viên nhập. Xuất Excel và PDF (in từ trình duyệt).
+- Dữ liệu lưu trong localStorage của từng trình duyệt.
 
 ## Deploy
 Mỗi lần push lên nhánh `main`, Vercel tự build lại và cập nhật link.

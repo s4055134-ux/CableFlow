@@ -21,7 +21,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .inp{height:40px;border:1px solid var(--inp);border-radius:8px;padding:0 12px;background:#fff;width:100%}
 textarea.inp{height:auto;padding:10px 12px;resize:vertical;line-height:1.55}
 .inp:focus{border-color:var(--pri);outline:3px solid #9CC9DA;outline-offset:0}
-label.lb{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+.lb{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
 .stack{display:flex;flex-direction:column;gap:16px}
 .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .sp{flex:1}
@@ -143,4 +143,45 @@ tbody tr{cursor:pointer}tbody tr:hover{background:#FAFBFC}
  .lfoot{padding-top:24px}
  .btn{height:44px}
  #toast{bottom:84px}
+}
+
+/* file đính kèm */
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+label.drop{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:var(--mute)}
+label.drop:hover{border-color:var(--pri);background:#F3F8FA}
+input.vh:focus-visible+label,label.drop:focus-within{outline:3px solid #9CC9DA}
+.fchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.fchip{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:6px 6px 6px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px}
+.fchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+.fchip small{color:var(--mute)}
+.fdel{border:0;background:none;cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;color:var(--mute);border-radius:4px}
+.fdel:hover{background:#ECEFF3;color:var(--ink)}
+.ferr{margin-top:10px;padding:10px 12px;border-radius:8px;background:#FCE8E6;color:#A8261B;font-size:13px;display:flex;flex-direction:column;gap:2px}
+/* báo giá */
+.qbox{border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;background:#FAFBFC}
+.qgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.qsum{display:grid;grid-template-columns:auto auto;justify-content:end;gap:6px 24px;margin:0;font-size:14px}
+.qsum dt{color:var(--mute)}.qsum dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+/* quy tắc */
+.rules{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.rules li{display:flex;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.rules li.off{opacity:.6}
+.sw input{width:18px;height:18px;margin:0;cursor:pointer;accent-color:var(--pri)}
+@media (max-width:860px){.qgrid{grid-template-columns:1fr 1fr}.qsum{justify-content:stretch}.rules li{flex-wrap:wrap}}
+/* in báo giá (PDF) */
+#print{display:none}
+@media print{
+ body{background:#fff}
+ body>*:not(#print){display:none!important}
+ #print{display:block}
+ .pq{font-family:'Be Vietnam Pro',sans-serif;color:#000;font-size:12pt;padding:8mm}
+ .pqh{display:flex;justify-content:space-between;border-bottom:2px solid #0B5D7A;padding-bottom:10px;margin-bottom:14px}
+ .pqt{font-size:20pt;font-weight:700;text-align:right;color:#0B5D7A}.pqt div{font-size:11pt;color:#000}
+ .pqi td{padding:3px 12px 3px 0;border:0}
+ .pql{margin-top:16px;border-collapse:collapse;width:100%}
+ .pql th,.pql td{border:1px solid #999;padding:6px 8px;text-align:left}
+ .pql td:nth-child(n+4),.pql tfoot td{text-align:right}
+ .pql .tt td{font-weight:700}
+ .pqn{margin-top:18px;font-size:9pt;color:#555}
+ @page{size:A4;margin:12mm}
 }

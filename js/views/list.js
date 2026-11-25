@@ -1,9 +1,9 @@
 /* Màn danh sách yêu cầu */
 function vList(){
- const tabs=[['all','Tất cả'],['new','Mới'],['waiting','Chờ khách'],['ready','Sẵn sàng'],['review','Chờ duyệt'],['done','Đã xác nhận']];
+ const tabs=[['all','Tất cả'],['new','Mới'],['waiting','Chờ khách'],['ready','Sẵn sàng'],['done','Đã xác nhận']];
  const cnt=k=>k==='all'?S.enq.length:S.enq.filter(e=>e.status===k).length;
  return `<div class="ph"><div><h1>Yêu cầu của khách</h1><div class="mute">Tiếp nhận, kiểm tra thông số và đề xuất cáp cho từng yêu cầu.</div></div><span class="sp"></span><a class="btn pri" href="#/new">${I.plus}Tạo yêu cầu</a></div>
- <div class="banner">${I.info}<span>Dữ liệu tồn kho cập nhật lúc <b>08:00 · 25/11/2026</b> từ file Excel của kho. Số lượng có thể chênh lệch nếu có xuất nhập sau giờ này.</span></div>
+ <div class="banner">${I.info}<span>Dữ liệu tồn kho cập nhật lúc <b>${esc(S.stock.date)}</b> từ file ${esc(S.stock.file)}. Số lượng có thể chênh lệch nếu có xuất nhập sau giờ này.</span></div>
  <div class="card">
   <div style="padding:0 16px"><div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button class="tab ${S.tab===k?'on':''}" role="tab" aria-selected="${S.tab===k}" data-act="tab" data-k="${k}">${l}<span class="cnt">${cnt(k)}</span></button>`).join('')}</div></div>
   <div style="padding:14px 16px"><input class="inp" id="q" type="search" placeholder="Tìm theo mã yêu cầu, tên khách hoặc nội dung…" value="${esc(S.q)}" aria-label="Tìm kiếm yêu cầu"></div>

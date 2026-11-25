@@ -15,7 +15,7 @@ function vLogin(){
    <fieldset style="border:0;margin:0;padding:0"><legend class="lb" style="padding:0;font-weight:600">Vào với vai trò</legend>
     <div class="role">
      <label><input type="radio" name="role" value="staff" checked><span>Nhân viên<small>Xử lý yêu cầu</small></span></label>
-     <label><input type="radio" name="role" value="admin"><span>Người duyệt<small>Duyệt & quản trị</small></span></label>
+     <label><input type="radio" name="role" value="admin"><span>Quản trị<small>Tồn kho, quy tắc, góp ý</small></span></label>
     </div></fieldset>
    <button class="btn pri" type="submit" style="height:48px;font-size:15px">Đăng nhập</button>
    <div class="mute" style="border-top:1px solid var(--line2);padding-top:14px;font-size:13px">Quên mật khẩu hoặc chưa có tài khoản? Liên hệ quản trị viên để được cấp lại.</div>
