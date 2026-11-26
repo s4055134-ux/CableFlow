@@ -1,24 +1,30 @@
-/* Màn danh sách yêu cầu */
+/* Màn tổng quan: thẻ tóm tắt + lọc trạng thái + thẻ yêu cầu */
 function vList(){
- const tabs=[['all','Tất cả'],['new','Mới'],['waiting','Chờ khách'],['ready','Sẵn sàng'],['done','Đã xác nhận']];
- const cnt=k=>k==='all'?S.enq.length:S.enq.filter(e=>e.status===k).length;
- return `<div class="ph"><div><h1>Yêu cầu của khách</h1><div class="mute">Tiếp nhận, kiểm tra thông số và đề xuất cáp cho từng yêu cầu.</div></div><span class="sp"></span><a class="btn pri" href="#/new">${I.plus}Tạo yêu cầu</a></div>
- <div class="banner">${I.info}<span>Dữ liệu tồn kho cập nhật lúc <b>${esc(S.stock.date)}</b> từ file ${esc(S.stock.file)}. Số lượng có thể chênh lệch nếu có xuất nhập sau giờ này.</span></div>
- <div class="card">
-  <div style="padding:0 16px"><div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button class="tab ${S.tab===k?'on':''}" role="tab" aria-selected="${S.tab===k}" data-act="tab" data-k="${k}">${l}<span class="cnt">${cnt(k)}</span></button>`).join('')}</div></div>
-  <div style="padding:14px 16px"><input class="inp" id="q" type="search" placeholder="Tìm theo mã yêu cầu, tên khách hoặc nội dung…" value="${esc(S.q)}" aria-label="Tìm kiếm yêu cầu"></div>
-  <div id="listBody">${listBody()}</div>
- </div>`
+ const keys=['new','waiting','ready','done'],cnt=k=>S.enq.filter(e=>e.status===k).length;
+ const open=S.enq.filter(e=>e.status!=='done').length;
+ const dec=S.enq.filter(e=>e.decision),rate=dec.length?Math.round(dec.filter(e=>e.decision.matched).length/dec.length*100):0;
+ const bar=keys.map(k=>cnt(k)?`<span style="flex:${cnt(k)};background:${STATUS[k][3]}"></span>`:'').join('');
+ const leg=keys.map(k=>`<span><i style="background:${STATUS[k][3]}"></i>${STATUS[k][0]} ${cnt(k)}</span>`).join('');
+ const tabs=[...keys.map(k=>[k,STATUS[k][0],cnt(k)]),['all','Tất cả',S.enq.length]]
+  .map(([k,l,n])=>`<button class="pill sm ${S.tab===k?'org':'soft'}" data-act="tab" data-k="${k}" aria-pressed="${S.tab===k}">${l} · ${n}</button>`).join('');
+ const newCnt=cnt('new');
+ return `<div class="ph"><div><h1 class="sf h1">Yêu cầu của khách</h1><p>${newCnt?`${newCnt} yêu cầu mới đang chờ kiểm tra thông tin.`:'Không có yêu cầu mới.'}</p></div><span class="sp"></span>
+  <label class="search">${ic('search',18)}<input id="q" type="search" placeholder="Tìm mã, khách hàng…" value="${esc(S.q)}" aria-label="Tìm yêu cầu"></label>
+  <a class="pill org" href="#/new">${ic('plus',17)}Tạo yêu cầu</a></div>
+ <section class="summary" aria-label="Tóm tắt"><div><p class="k">Đang mở</p><p class="v sf">${open} yêu cầu</p></div>
+  <div style="flex:1 1 260px"><div class="sbar">${bar}</div><div class="legend">${leg}</div></div>
+  <div style="text-align:right"><p class="k">Khớp gợi ý số 1</p><p class="v sf" style="color:#F7B48F">${rate}%</p></div></section>
+ <div class="filters" role="group" aria-label="Lọc theo trạng thái">${tabs}</div>
+ <div id="listBody">${listBody()}</div>
+ <a class="pill org" href="#/new" style="width:100%;margin-top:16px" data-mobile-only>${ic('plus',17)}Tạo yêu cầu</a>
+ <div class="note" style="margin-top:16px">${ic('box',16)}Tồn kho cập nhật ${esc(S.stock.date)} từ file ${esc(S.stock.file)}. Số lượng có thể lệch nếu có xuất nhập sau giờ này.</div>`
 }
 function listBody(){
  const q=S.q.trim().toLowerCase();
  const rows=S.enq.filter(e=>(S.tab==='all'||e.status===S.tab)&&(!q||(e.id+' '+e.cust+' '+e.msg).toLowerCase().includes(q)));
  if(!rows.length)return `<div class="empty">Không có yêu cầu nào khớp bộ lọc.</div>`;
- return `<div class="tbl"><table><thead><tr><th>Mã</th><th>Khách hàng</th><th>Nhận lúc</th><th>Kênh</th><th>Thông số</th><th>Trạng thái</th></tr></thead><tbody>
- ${rows.map(e=>`<tr data-act="open" data-id="${e.id}"><td class="mono"><a href="#/enquiry/${e.id}">${e.id}</a></td><td style="font-weight:600">${esc(e.cust)}</td><td>${esc(e.date)}</td><td>${esc(e.src)}</td><td>${progress(e)}</td><td>${stChip(e.status)}</td></tr>`).join('')}
- </tbody></table></div>
- <div class="ecards" style="padding:0 12px 12px">${rows.map(e=>`<a class="card" href="#/enquiry/${e.id}" style="display:block;padding:14px;text-decoration:none;color:inherit">
-  <div class="row" style="justify-content:space-between"><span class="mono mute" style="font-size:13px">${e.id}</span>${stChip(e.status)}</div>
-  <div style="font-weight:600;margin:6px 0 8px">${esc(e.cust)}</div>
-  <div class="row" style="justify-content:space-between"><span class="mute" style="font-size:13px">${esc(e.src)} · ${esc(e.date)}</span>${progress(e)}</div></a>`).join('')}</div>`
+ return `<div class="grid4">${rows.map(e=>`<a class="ecard" href="#/enquiry/${e.id}">
+  <div class="row" style="justify-content:space-between"><span style="font-size:12.5px;font-weight:600;color:var(--mute)">${e.id}</span>${stChip(e.status)}</div>
+  <h3>${esc(e.cust)}</h3><p class="meta">${ic(CHIC[e.src]||'msg',14)}${esc(e.src)} · ${esc(e.date)}</p>${progress(e)}
+  <span class="pill sm ${['new','ready'].includes(e.status)?'pri':''}" style="align-self:flex-start">${e.status==='done'?'Xem lại':'Tiếp tục'}${ic('next',15)}</span></a>`).join('')}</div>`
 }

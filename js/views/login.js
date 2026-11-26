@@ -1,26 +1,20 @@
 /* Màn đăng nhập (chế độ dev: không cần tài khoản) */
+const APP_TITLE='Hệ thống báo giá kỹ thuật';
 function vLogin(){
+ const steps=[['Kiểm tra thông tin','msg'],['Hỏi lại khách','send'],['Gợi ý mã cáp','cable'],['Xác nhận & báo giá','excel']]
+  .map(([t,i])=>`<li><span class="ico">${ic(i,16)}</span>${t}</li>`).join('');
  return `<div class="login">
-  <div class="lcorner"><b>CF</b><div><div class="cw">CableFlow</div><div class="cc">Đông Nguyên Gia</div></div></div>
- <div class="lwrap">
-  <header class="lhead">
-   <div class="logo lbrand"><b>CF</b><div class="lname"><div class="wm">CableFlow</div><div class="co">Đông Nguyên Gia</div></div></div>
-   <div><div class="eyebrow">HỆ THỐNG NỘI BỘ</div><h1>Hệ thống xử lý yêu cầu kỹ thuật &amp; báo giá</h1><p class="lsub">Đông Nguyên Gia nhập khẩu và phân phối cáp điện từ năm 2010.</p></div>
-  </header>
-  <form class="card stack lcard" id="loginForm" novalidate>
-   <div><h2 style="font-size:19px;font-weight:700;margin-bottom:4px">Đăng nhập</h2><p class="mute" style="margin:0">Dùng tài khoản do quản trị viên cấp.</p></div>
-   <div class="devnote">${I.info}<div><b>Chế độ phát triển.</b> Chưa kết nối tài khoản thật: nhập email và mật khẩu bất kỳ (hoặc để trống) để vào.</div></div>
+ <div><span class="brand" style="display:inline-flex"><img src="${LOGO}" alt="Logo Đông Nguyên Gia"><span><b>CableFlow</b><span>Đông Nguyên Gia</span></span></span></div>
+ <div class="lpanel"><div class="lbox">
+  <div class="lintro"><h1 class="sf">${APP_TITLE}</h1><span class="lline"></span><p class="mute" style="margin:12px 0 0;font-size:15px">Đông Nguyên Gia · công cụ nội bộ</p><ul>${steps}</ul></div>
+  <form class="lform" id="loginForm" novalidate>
+   <div><h2 class="sf" style="font-size:24px">Đăng nhập</h2><p class="mute" style="margin:4px 0 0">Dùng tài khoản do quản trị viên cấp.</p></div>
    <div><label class="lb" for="em">Email công ty</label><input class="inp" id="em" type="email" autocomplete="username" placeholder="ten@dongnguyengia.vn"></div>
    <div><label class="lb" for="pw">Mật khẩu</label><input class="inp" id="pw" type="password" autocomplete="current-password" placeholder="••••••••"></div>
-   <fieldset style="border:0;margin:0;padding:0"><legend class="lb" style="padding:0;font-weight:600">Vào với vai trò</legend>
-    <div class="role">
-     <label><input type="radio" name="role" value="staff" checked><span>Nhân viên<small>Xử lý yêu cầu</small></span></label>
-     <label><input type="radio" name="role" value="admin"><span>Quản trị<small>Tồn kho, quy tắc, góp ý</small></span></label>
-    </div></fieldset>
-   <button class="btn pri" type="submit" style="height:48px;font-size:15px">Đăng nhập</button>
-   <div class="mute" style="border-top:1px solid var(--line2);padding-top:14px;font-size:13px">Quên mật khẩu hoặc chưa có tài khoản? Liên hệ quản trị viên để được cấp lại.</div>
-  </form>
- </div>
- <footer class="lfoot">Công cụ nội bộ · Chỉ dành cho nhân viên Đông Nguyên Gia</footer>
-</div>`
+   <fieldset style="border:0;margin:0;padding:0"><legend class="lb">Vào với vai trò</legend>
+    <div class="roles"><label><input type="radio" name="role" value="staff" checked>Nhân viên</label><label><input type="radio" name="role" value="admin">Quản trị</label></div></fieldset>
+   <button class="pill pri" type="submit" style="height:52px;font-size:15px">Đăng nhập</button>
+   <p class="note" style="margin:0">${ic('alert',16)}Bản dev: nhập email và mật khẩu bất kỳ (hoặc để trống) để vào.</p>
+  </form></div></div>
+ <p class="mute" style="margin:0;font-size:12px;text-align:center">Chỉ dành cho nhân viên Đông Nguyên Gia</p></div>`
 }

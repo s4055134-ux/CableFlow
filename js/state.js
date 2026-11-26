@@ -1,5 +1,5 @@
 /* Dữ liệu mẫu và lưu trạng thái vào localStorage */
-const LS='cableflow_dev_v2';
+const LS='cableflow_dev_v3';
 let S;
 function mk(id,cust,contact,src,date,msg,status,o={}){
  const ex=extract(msg),f={};

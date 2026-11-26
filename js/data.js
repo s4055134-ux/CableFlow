@@ -12,8 +12,9 @@ const FIELDS=[
  {k:'delivery',l:'Thời gian giao',h:'',q:'Thời gian cần giao hàng?'},
  {k:'budget',l:'Ngân sách dự án',h:'tuỳ chọn',q:'Ngân sách dự kiến cho hạng mục cáp (nếu có)?',opt:true}
 ];
-const ST={ok:['✓ Đã xác nhận','ok'],ai:['? AI trích – cần kiểm tra','ai'],miss:['! Còn thiếu','miss'],na:['– Không áp dụng','na']};
-const STATUS={new:['Mới','info'],waiting:['Chờ khách trả lời','ai'],ready:['Sẵn sàng đề xuất','ok'],done:['Đã xác nhận','ok']};
+const ST={ok:['Đã xác nhận','ok'],ai:['AI đọc · cần kiểm tra','ai'],miss:['Còn thiếu','miss'],na:['Không áp dụng','na']};
+/* Trạng thái yêu cầu: [nhãn, lớp màu, icon, màu biểu đồ] */
+const STATUS={new:['Mới','info','plus','#14233C'],waiting:['Chờ khách trả lời','warn','clock','#E9A23B'],ready:['Sẵn sàng gợi ý','org','cable','#EE6A2C'],done:['Đã chốt mã','ok','check','#3E8E63']};
 const CAT=[
  {code:'CXV/DSTA',ins:'XLPE',arm:'Băng thép',v:'0.6/1 kV',src:'Catalogue hãng [A] · tr. 42',ug:true},
  {code:'CXV/SWA',ins:'XLPE',arm:'Sợi thép',v:'0.6/1 kV',src:'Catalogue hãng [A] · tr. 45',ug:true},

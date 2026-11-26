@@ -1,27 +1,12 @@
-/* Lịch sử: các yêu cầu đã chốt mã cáp, khớp đề xuất hay đã sửa, và báo giá đã tạo */
+/* Lịch sử: mã đã chốt, có giữ gợi ý hay không, và báo giá đã tạo */
 function vHistory(){
  const rows=S.enq.filter(e=>e.status==='done'&&e.decision);
- const matched=rows.filter(e=>e.decision.matched).length;
- const rate=rows.length?Math.round(matched/rows.length*100):0;
- const quoted=rows.filter(e=>e.quote).length;
- const qcell=e=>e.quote?`<span class="mono">${esc(e.quote.no)}</span> · ${vnd(quoteCalc(e.quote).total)}<div class="row" style="gap:4px;margin-top:6px"><button class="btn sm" data-act="hXlsx" data-id="${e.id}">Excel</button><button class="btn sm" data-act="hPdf" data-id="${e.id}">PDF</button></div>`:'<span class="mute">Chưa tạo</span>';
- const mchip=e=>e.decision.matched?chip('✓ Theo đề xuất','ok'):chip('✎ Đã sửa','ai');
- return `<div class="ph"><div><h1>Lịch sử quyết định</h1><div class="mute">Mã cáp đã chốt cho từng yêu cầu, có khớp với đề xuất hay không, và báo giá đã tạo.</div></div></div>
- <div class="stats">
-  <div class="card pad stat"><span class="mute">Yêu cầu đã chốt</span><b>${rows.length}</b></div>
-  <div class="card pad stat"><span class="mute">Khớp với đề xuất số 1</span><b>${rate}%</b><span class="mute" style="font-size:12px">${matched}/${rows.length} quyết định giữ nguyên đề xuất của hệ thống</span></div>
-  <div class="card pad stat"><span class="mute">Báo giá đã tạo</span><b>${quoted}</b></div>
- </div>
- <div class="card">${rows.length?`
-  <div class="tbl" style="overflow-x:auto"><table style="min-width:860px"><thead><tr><th>Yêu cầu</th><th>Khách hàng</th><th>Mã đã chốt</th><th>So với đề xuất</th><th>Người chốt</th><th>Báo giá</th></tr></thead><tbody>
-  ${rows.map(e=>`<tr style="cursor:default"><td class="mono"><a href="#/enquiry/${e.id}">${e.id}</a></td><td style="font-weight:600">${esc(e.cust)}</td>
-   <td class="mono">${esc(e.decision.code)}</td><td>${mchip(e)}${e.decision.matched?'':`<div class="mute" style="font-size:12px;margin-top:4px">Đề xuất: ${esc(e.decision.top)} · ${esc(e.decision.reason)}</div>`}</td>
-   <td>${esc(e.decision.by)}<div class="mute" style="font-size:12px">${esc(e.decision.t)}</div></td><td>${qcell(e)}</td></tr>`).join('')}
-  </tbody></table></div>
-  <div class="ecards" style="padding:12px">${rows.map(e=>`<div class="card" style="padding:14px">
-   <div class="row" style="justify-content:space-between"><a class="mono" href="#/enquiry/${e.id}">${e.id}</a>${mchip(e)}</div>
-   <div style="font-weight:600;margin:6px 0 4px">${esc(e.cust)}</div>
-   <div class="mono" style="font-size:13px">${esc(e.decision.code)}</div>
-   <div class="mute" style="font-size:12px;margin:4px 0 8px">${esc(e.decision.by)} · ${esc(e.decision.t)}</div>${qcell(e)}</div>`).join('')}</div>`
- :`<div class="empty">Chưa có yêu cầu nào được chốt mã cáp.</div>`}</div>`
+ const matched=rows.filter(e=>e.decision.matched).length,rate=rows.length?Math.round(matched/rows.length*100):0,quoted=rows.filter(e=>e.quote).length;
+ const q=e=>e.quote?`<span class="row" style="gap:6px"><button class="pill sm soft" data-act="hXlsx" data-id="${e.id}">${ic('excel',14)}${e.quote.no}.xlsx</button><button class="pill sm soft" data-act="hPdf" data-id="${e.id}">PDF</button></span>`:`<a class="pill sm" href="#/enquiry/${e.id}/4">Tạo báo giá</a>`;
+ return `<div class="ph"><div><h1 class="sf h1">Lịch sử quyết định</h1><p>Mã cáp đã chốt, có giữ gợi ý hay không, và báo giá đã tạo.</p></div></div>
+ <div class="stats"><section class="card row" style="gap:18px;flex-wrap:nowrap">${ring(rate,96,11)}<div><b style="font-size:16px">Khớp với gợi ý số 1</b><p class="mute" style="margin:4px 0 0;font-size:13px">${matched}/${rows.length} quyết định giữ nguyên gợi ý của hệ thống</p></div></section>
+  <section class="card stat"><span class="k">Yêu cầu đã chốt</span><b class="v sf">${rows.length}</b></section><section class="card stat"><span class="k">Báo giá đã tạo</span><b class="v sf">${quoted}</b></section></div>
+ ${rows.length?`<ul class="hlist">${rows.map(e=>`<li class="hitem"><div><span class="mute" style="font-size:12.5px;font-weight:600">${e.id}</span><a href="#/enquiry/${e.id}/4" style="display:block;font-weight:700;font-size:15.5px;text-decoration:none">${esc(e.cust)}</a><span class="mute" style="font-size:12.5px">${esc(e.decision.by)} · ${esc(e.decision.t)}</span></div>
+  <div><b class="sf" style="font-size:22px">${esc(e.decision.code)}</b>${e.decision.matched?'':`<p class="mute" style="margin:2px 0 0;font-size:12px">Gợi ý: ${esc(e.decision.top)} · ${esc(e.decision.reason)}</p>`}</div>
+  <div>${e.decision.matched?chip('Theo gợi ý','ok','check'):chip('Đã sửa','org','alert')}</div>${q(e)}</li>`).join('')}</ul>`:`<div class="empty">Chưa có yêu cầu nào được chốt mã cáp.</div>`}`
 }

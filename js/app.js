@@ -1,13 +1,15 @@
 /* Router (#/...) và xử lý sự kiện. File này chạy sau cùng */
 function render(){
- const h=location.hash.replace(/^#\/?/,'');const[p,id]=h.split('/');
+ const h=location.hash.replace(/^#\/?/,'');const[p,id,st]=h.split('/');
  const app=$('#app');
- if(!S.user){app.innerHTML=vLogin();document.title='Đăng nhập – CableFlow';return}
- if(p==='new'){app.innerHTML=shell('new',vNew());document.title='Tạo yêu cầu – CableFlow'}
- else if(p==='admin'){app.innerHTML=shell('admin',vAdmin());document.title='Quản trị – CableFlow'}
- else if(p==='history'){app.innerHTML=shell('history',vHistory());document.title='Lịch sử – CableFlow'}
- else if(p==='enquiry'&&getE(id)){const e=getE(id);app.innerHTML=shell('list',vWork(e));document.title=e.id+' – CableFlow'}
- else{if(p!=='enquiries'){history.replaceState(null,'','#/enquiries')}app.innerHTML=shell('list',vList());document.title='Yêu cầu – CableFlow'}
+ if(!S.user){app.innerHTML=vLogin();document.title='Đăng nhập – '+APP_TITLE;return}
+ if(p==='new'){app.innerHTML=shell('new',vNew(),'Tạo yêu cầu','#/enquiries');document.title='Tạo yêu cầu – CableFlow'}
+ else if(p==='admin'){app.innerHTML=shell('admin',vAdmin(),'Quản trị');document.title='Quản trị – CableFlow'}
+ else if(p==='history'){app.innerHTML=shell('history',vHistory(),'Lịch sử');document.title='Lịch sử – CableFlow'}
+ else if(p==='enquiry'&&getE(id)){const e=getE(id),n=+st;
+  if(!(n>=1&&n<=4)){history.replaceState(null,'',`#/enquiry/${id}/${defaultStep(e)}`);return render()}
+  app.innerHTML=shell('list',vWork(e,n),e.id,'#/enquiries');document.title=`${e.id} · Bước ${n} – CableFlow`}
+ else{if(p!=='enquiries'){history.replaceState(null,'','#/enquiries')}app.innerHTML=shell('list',vList(),'Yêu cầu của khách');document.title='Tổng quan – CableFlow'}
 }
 function rerender(keepScroll=true){const y=window.scrollY;render();if(keepScroll)window.scrollTo(0,y)}
 window.addEventListener('hashchange',()=>{REPLY={x:'',files:[],bad:[]};STOCK_ERR=[];render();window.scrollTo(0,0)});
@@ -20,9 +22,8 @@ const A={
  switchRole(){S.user.r=S.user.r==='admin'?'staff':'admin';save();rerender();toast('Đang dùng vai trò: '+USERS[S.user.r].role)},
  tab(b){S.tab=b.dataset.k;save();rerender()},
  open(b){location.hash='#/enquiry/'+b.dataset.id},
- src(b){NEW.src=b.dataset.k;document.querySelectorAll('.seg button').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',x===b)})},
+ src(b){NEW.src=b.dataset.k;b.parentNode.querySelectorAll('button').forEach(x=>{const on=x===b;x.classList.toggle('pri',on);x.classList.toggle('soft',!on);x.setAttribute('aria-pressed',on)})},
  sample(){$('#nmsg').value=SAMPLE;NEW.msg=SAMPLE;if(!$('#ncust').value){$('#ncust').value='Cty TNHH Năng lượng Phương Nam';NEW.cust=$('#ncust').value}if(!$('#ncontact').value){$('#ncontact').value='Ms. Linh';NEW.contact='Ms. Linh'}},
- view(b){const e=curE();e.view=b.dataset.k;save();render();window.scrollTo(0,0)},
  okField(b){const e=curE();e.f[b.dataset.k].st='ok';e.draft=null;recompute(e);save();rerender()},
  naField(b){const e=curE();const x=e.f[b.dataset.k];x.st='na';x.v='';e.draft=null;recompute(e);save();rerender()},
  unNa(b){const e=curE();e.f[b.dataset.k].st='miss';e.draft=null;save();rerender()},
@@ -33,7 +34,7 @@ const A={
   const ex=t?extract(t):{};let n=0;FIELDS.forEach(F=>{const x=e.f[F.k];if(ex[F.k]&&(x.st==='miss'||x.st==='ai')){e.f[F.k]={v:ex[F.k].v,st:'ai',src:ex[F.k].src};n++}});
   const nf=REPLY.files.length;e.replies.push({t:now(),x:t,files:REPLY.files});
   e.hist.push({t:now(),x:`Khách trả lời${nf?` · ${nf} file`:''} · cập nhật ${n} thông số`});REPLY={x:'',files:[],bad:[]};e.draft=null;recompute(e);save();rerender();
-  toast(n?`Đã cập nhật ${n} thông số. Kiểm tra các mục màu vàng.`:nf?'Đã lưu file trả lời. Bản dev chưa đọc nội dung file, hãy điền checklist thủ công.':'Không nhận ra thông số mới. Hãy nhập tay vào checklist.')},
+  toast(n?`Đã cập nhật ${n} thông số. Kiểm tra các ô màu cam ở bước 1.`:nf?'Đã lưu file trả lời. Bản dev chưa đọc nội dung file, hãy điền checklist thủ công.':'Không nhận ra thông số mới. Hãy nhập tay vào checklist.')},
  rfileDel(b){REPLY.files.splice(+b.dataset.i,1);$('#rfiles').innerHTML=replyFilesHTML()},
  nfileDel(b){NEW.files.splice(+b.dataset.i,1);$('#nfiles').innerHTML=newFilesHTML()},
  pick(b){const e=curE();e.selected=b.dataset.k;e.manual=false;e.reason='';save();rerender()},
@@ -47,16 +48,9 @@ const A={
   e.reason=reason;e.status='done';e.selected=code;e.decision={code,top,matched,reason,by:USERS[S.user.r].name,t:now()};e.qf=null;e.quote=null;
   e.hist.push({t:now(),x:'Xác nhận mã cáp '+code+(matched?'':' (sửa đề xuất)')});
   if(!matched)S.feedback.unshift({d:now().split(' · ')[0],u:USERS[S.user.r].name,e:e.id,type:e.manual?'Sửa đề xuất':'Đổi đề xuất',x:`Chọn ${code}${e.manual?' (nhập tay)':''} thay vì ${top}. Lý do: ${reason}${e.note?' – '+e.note:''}`,st:'Mới'});
-  save();rerender();toast('Đã xác nhận mã cáp '+code)},
- reopen(){const e=curE();e.status='ready';e.decision=null;e.quote=null;e.qf=null;e.hist.push({t:now(),x:'Mở lại yêu cầu'});save();rerender()},
- qMake(){const e=curE(),it=decidedItem(e),q=e.qf,qty=+q.qty,cost=+q.cost;
-  if(!(qty>0)){toast('Hãy nhập số lượng');$('#qQty').focus();return}
-  if(!(cost>0)){toast('Hãy nhập giá vốn');$('#qCost').focus();return}
-  if(qty>it.stock){toast(`Chỉ báo giá hàng có sẵn: tồn kho còn ${it.stock} m`);$('#qQty').focus();return}
-  e.quote={no:'BG-'+e.id.slice(3),t:now(),by:USERS[S.user.r].name,code:it.name,qty,cost,margin:+q.margin||0,vat:+q.vat};
-  e.hist.push({t:now(),x:'Tạo báo giá '+e.quote.no});save();rerender();toast('Đã tạo báo giá '+e.quote.no+'. Tải file Excel hoặc PDF bên dưới.')},
- qRedo(){const e=curE();e.qf={qty:e.quote.qty,cost:e.quote.cost,margin:e.quote.margin,vat:e.quote.vat};e.quote=null;save();rerender()},
- qXlsx(){exportXlsx(curE())},qPdf(){printQuote(curE())},
+  save();location.hash=`#/enquiry/${e.id}/4`;toast('Đã chốt mã '+code+'. Nhập giá vốn để tạo báo giá.')},
+ reopen(){const e=curE();e.status='ready';e.decision=null;e.quote=null;e.qf=null;e.manual=false;e.hist.push({t:now(),x:'Đổi mã cáp đã chốt'});save();location.hash=`#/enquiry/${e.id}/3`},
+ qXlsx(){const e=curE();if(makeQuote(e))exportXlsx(e)},qPdf(){const e=curE();if(makeQuote(e))printQuote(e)},
  hXlsx(b){exportXlsx(getE(b.dataset.id))},hPdf(b){printQuote(getE(b.dataset.id))},
  stockTpl(){download('mau-ton-kho.csv',new Blob(['\ufeffma_cap,so_loi,tiet_dien,ton_kho_m\nCXV/DSTA,4,16,820\nCXV/SWA,4,16,300\nCVV,3,10,500\n'],{type:'text/csv'}))},
  admTab(b){ADM_TAB=b.dataset.k;STOCK_ERR=[];rerender()},
@@ -75,10 +69,11 @@ document.addEventListener('input',ev=>{const t=ev.target;
  else if(t.id==='note'){const e=curE();if(e)e.note=t.value}
  else if(t.id==='reply')REPLY.x=t.value;
  else if(t.id==='manualCode'){const e=curE();e.manualCode=t.value}
- else if(t.dataset.q){const e=curE();e.qf[t.dataset.q]=t.value;save();$('#qcalc').innerHTML=qcalcHTML(e.qf,decidedItem(e))}});
+ else if(t.dataset.q){const e=curE();e.qf[t.dataset.q]=t.value;save();$('#qcalc').innerHTML=qcalcHTML(e,e.qf,decidedItem(e))}});
 document.addEventListener('change',ev=>{const t=ev.target;
  if(t.dataset.field){const e=curE(),x=e.f[t.dataset.field],v=t.value.trim();x.v=v;x.st=v?'ok':'miss';x.src='';e.draft=null;recompute(e);save();rerender()}
  else if(t.id==='reason'){const e=curE();e.reason=t.value;save()}
+ else if(t.id==='qVat'){const e=curE();e.qf.vat=t.value;save();$('#qcalc').innerHTML=qcalcHTML(e,e.qf,decidedItem(e))}
  else if(t.id==='nfile'){const r=checkFiles(t.files);NEW.files.push(...r.ok);NEW.bad=r.bad;t.value='';$('#nfiles').innerHTML=newFilesHTML()}
  else if(t.id==='rfile'){const r=checkFiles(t.files);REPLY.files.push(...r.ok);REPLY.bad=r.bad;t.value='';$('#rfiles').innerHTML=replyFilesHTML()}
  else if(t.id==='stockFile'){const f=t.files[0];t.value='';if(f)importStock(f)}
@@ -89,8 +84,8 @@ document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target;
   if(!cust){toast('Hãy nhập tên khách hoặc công ty');$('#ncust').focus();return}
   if(!msg&&!NEW.files.length){toast('Hãy dán nội dung hoặc đính kèm file khách gửi');$('#nmsg').focus();return}
   const id='YC-'+String(S.seq++).padStart(4,'0');const e=mk(id,cust,NEW.contact.trim()||'anh/chị',NEW.src,now(),msg,'new',{files:NEW.files});recompute(e);
-  S.enq.unshift(e);NEW={cust:'',contact:'',src:'Zalo',msg:'',files:[],bad:[]};save();location.hash='#/enquiry/'+id;
-  toast(msg?`Đã trích ${filled(e)}/11 thông số. Kiểm tra các mục màu vàng.`:'Đã lưu yêu cầu. Bản dev chưa đọc nội dung file, hãy điền checklist thủ công.')}
+  S.enq.unshift(e);NEW={cust:'',contact:'',src:'Zalo',msg:'',files:[],bad:[]};save();location.hash=`#/enquiry/${id}/1`;
+  toast(msg?`Đã đọc ${reqFilled(e)}/10 thông số bắt buộc. Kiểm tra các ô màu cam.`:'Đã lưu yêu cầu. Bản dev chưa đọc nội dung file, hãy điền checklist thủ công.')}
  else if(f.id==='ruleForm'){const c=$('#rCond').value.trim(),x=$('#rEff').value.trim();
   if(!c||!x){toast('Hãy nhập đủ phần Nếu và Thì');(!c?$('#rCond'):$('#rEff')).focus();return}
   S.rules.push({id:'u'+Date.now(),cond:c,eff:x,src:$('#rSrc').value.trim()||'Chưa ghi nguồn',active:true,auto:false});save();rerender();toast('Đã thêm quy tắc')}});
@@ -118,24 +113,35 @@ async function importStock(file){
  }catch(err){STOCK_ERR=[err.message];rerender()}
 }
 
-/* ===== Báo giá: xuất Excel và PDF (in từ trình duyệt) ===== */
-function quoteData(e){const q=e.quote,c=quoteCalc(q);
- return{q,c,head:[['BÁO GIÁ',''],['Số',q.no],['Ngày',q.t],['Khách hàng',e.cust],['Người liên hệ',e.contact],['Mã yêu cầu',e.id],['Người lập',q.by]],
-  cols:['STT','Mô tả','ĐVT','Số lượng','Đơn giá (đ)','Thành tiền (đ)'],
-  line:[1,q.code,'m',q.qty,Math.round(c.unit),Math.round(c.sub)]}}
+/* ===== Báo giá: tạo từ form, xuất Excel (có công thức) và PDF ===== */
+function makeQuote(e){const it=decidedItem(e),q=e.qf,qty=+q.qty,cost=+q.cost;
+ if(!(qty>0)){toast('Hãy nhập số lượng');$('#qQty').focus();return false}
+ if(!(cost>0)){toast('Hãy nhập giá vốn');$('#qCost').focus();return false}
+ if(qty>it.stock){toast(`Chỉ báo giá hàng có sẵn: tồn kho còn ${it.stock} m`);$('#qQty').focus();return false}
+ const first=!e.quote;
+ e.quote={no:'BG-'+e.id.slice(3),t:now(),by:USERS[S.user.r].name,code:it.name,qty,cost,margin:+q.margin||0,vat:+q.vat};
+ if(first)e.hist.push({t:now(),x:'Tạo báo giá '+e.quote.no});save();rerender();return true}
 async function exportXlsx(e){
- try{const X=await loadXLSX(),{q,c,head,cols,line}=quoteData(e);
-  const aoa=[...head,[],cols,line,[],['','','','','Cộng',Math.round(c.sub)],['','','','','VAT '+q.vat+'%',Math.round(c.tax)],['','','','','Tổng cộng',Math.round(c.total)],[],['Mẫu báo giá tạm (bản dev) – điều khoản và mẫu chính thức chờ Đông Nguyên Gia chốt.']];
-  const ws=X.utils.aoa_to_sheet(aoa);ws['!cols']=[{wch:14},{wch:42},{wch:6},{wch:10},{wch:16},{wch:18}];
+ try{const X=await loadXLSX(),q=e.quote,c=quoteCalc(q),u=Math.round(c.unit);
+  const aoa=[['BÁO GIÁ'],['Số',q.no],['Ngày',q.t],['Khách hàng',e.cust],['Người liên hệ',e.contact],['Mã yêu cầu',e.id],['Người lập',q.by],[],
+   ['STT','Mô tả','ĐVT','Số lượng','Đơn giá (đ)','Thành tiền (đ)'],[1,q.code,'m',q.qty,u,null],[],
+   ['','','','','Cộng',null],['','','','VAT',q.vat/100,null],['','','','','Tổng cộng',null],[],
+   ['Sửa số lượng (D10), đơn giá (E10) hoặc VAT (E13): thành tiền và tổng tự tính lại.'],['Mẫu báo giá tạm (bản dev) – điều khoản và mẫu chính thức chờ Đông Nguyên Gia chốt.']];
+  const ws=X.utils.aoa_to_sheet(aoa);
+  ws['F10']={t:'n',f:'D10*E10',z:'#,##0'};ws['F12']={t:'n',f:'SUM(F10:F10)',z:'#,##0'};ws['F13']={t:'n',f:'F12*E13',z:'#,##0'};ws['F14']={t:'n',f:'F12+F13',z:'#,##0'};
+  ws['E10'].z='#,##0';ws['E13'].z='0%';
+  ws['!cols']=[{wch:14},{wch:40},{wch:6},{wch:10},{wch:16},{wch:18}];
   const wb=X.utils.book_new();X.utils.book_append_sheet(wb,ws,'Bao gia');X.writeFile(wb,q.no+'.xlsx');toast('Đã tải '+q.no+'.xlsx');
  }catch(err){toast('Không tạo được file Excel: '+err.message)}
 }
 function printQuote(e){
- const {q,c,head,cols,line}=quoteData(e);
- $('#print').innerHTML=`<div class="pq"><div class="pqh"><div><b>Đông Nguyên Gia</b><div>Nhập khẩu và phân phối cáp điện</div></div><div class="pqt">BÁO GIÁ<div>${esc(q.no)}</div></div></div>
-  <table class="pqi">${head.slice(2).map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('')}</table>
-  <table class="pql"><thead><tr>${cols.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody><tr>${line.map((x,i)=>`<td>${i>=4?Math.round(x).toLocaleString('vi-VN'):esc(x)}</td>`).join('')}</tr></tbody>
+ const q=e.quote,c=quoteCalc(q);
+ const info=[['Ngày',q.t],['Khách hàng',e.cust],['Người liên hệ',e.contact],['Mã yêu cầu',e.id],['Người lập',q.by]];
+ $('#print').innerHTML=`<div class="pq"><div class="pqh"><div style="display:flex;align-items:center;gap:14px"><img src="${LOGO}" alt="Logo Đông Nguyên Gia"><div><b>Đông Nguyên Gia</b><div>Nhập khẩu và phân phối cáp điện</div></div></div><div class="pqt">BÁO GIÁ<div>${esc(q.no)}</div></div></div>
+  <table class="pqi">${info.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('')}</table>
+  <table class="pql"><thead><tr><th>STT</th><th>Mô tả</th><th>ĐVT</th><th>Số lượng</th><th>Đơn giá (đ)</th><th>Thành tiền (đ)</th></tr></thead>
+  <tbody><tr><td>1</td><td>${esc(q.code)}</td><td>m</td><td>${q.qty}</td><td>${Math.round(c.unit).toLocaleString('vi-VN')}</td><td>${Math.round(c.sub).toLocaleString('vi-VN')}</td></tr></tbody>
   <tfoot><tr><td colspan="5">Cộng</td><td>${vnd(c.sub)}</td></tr><tr><td colspan="5">VAT ${q.vat}%</td><td>${vnd(c.tax)}</td></tr><tr class="tt"><td colspan="5">Tổng cộng</td><td>${vnd(c.total)}</td></tr></tfoot></table>
   <p class="pqn">Mẫu báo giá tạm (bản dev). Điều khoản và mẫu chính thức chờ Đông Nguyên Gia chốt.</p></div>`;
- window.print();
+ setTimeout(()=>window.print(),300);
 }
